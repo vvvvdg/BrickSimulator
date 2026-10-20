@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0a0d12">
+<title>排行榜 · 抽砖模拟器</title>
+<link rel="stylesheet" href="menu.css?v=3">
+<style>
+  body { justify-content: flex-start; gap: 16px; }
+  .top { display: flex; align-items: center; gap: 12px; min-height: 40px; }
+  .top a { color: var(--dim); text-decoration: none; font-size: 15px; padding: 6px 2px; }
+  .top h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: .04em; }
+  .tabs { display: flex; gap: 8px; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+  .tabs button { flex: 1; height: 40px; border: 0; border-radius: 9px; background: transparent; color: var(--dim); font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; }
+  .tabs button.on { background: linear-gradient(135deg, #f7a33c, #e07c16); color: #221405; }
+  .board { display: flex; flex-direction: column; gap: 8px; }
+  .board .msg { color: var(--dim); font-size: 13px; text-align: center; padding: 30px 0; }
+  .row {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    border: 1px solid var(--line); border-radius: 13px; background: var(--panel);
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+    transition: transform .12s ease, border-color .12s ease;
+  }
+  .row.static { cursor: default; }
+  .row:not(.static):active { transform: scale(.985); border-color: #f7a33c66; }
+  .row .rk { width: 26px; flex: none; text-align: center; font-size: 17px; font-weight: 800; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .row.top1 .rk { color: #f5c451; }
+  .row.top2 .rk { color: #cfd6e0; }
+  .row.top3 .rk { color: #d0894f; }
+  .row .who { flex: 1; min-width: 0; }
+  .row .nick { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .sub { margin-top: 3px; font-size: 12px; color: var(--dim); line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .main { flex: none; text-align: right; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .row .main small { font-size: 11px; font-weight: 500; color: var(--dim); margin-left: 2px; }
+  .foot { color: var(--dim); font-size: 11px; text-align: center; padding-top: 4px; line-height: 1.6; }
+
+  /* ── 详情大图 ─────────────────────────────── */
+  .mask {
+    position: fixed; inset: 0; z-index: 60; display: none;
+    align-items: center; justify-content: center; padding: 24px;
+    background: #03060af2; backdrop-filter: blur(6px);
+  }
+  .mask.on { display: flex; animation: fade .18s ease; }
+  @keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+
+  .card {
+    position: relative; width: 100%; max-width: 330px;
+    border-radius: 22px; padding: 22px 20px 18px;
+    border: 1px solid #ffffff1f;
+    background: linear-gradient(160deg, var(--c1, #2b3240), var(--c2, #12161d) 72%);
+    box-shadow: 0 24px 60px #000a, inset 0 1px 0 #ffffff26;
+    animation: pop .22s cubic-bezier(.2, .9, .3, 1.2);
+  }
+  @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.94) } to { opacity: 1; transform: none } }
+
+  .card .close {
+    position: absolute; top: 10px; right: 10px; width: 30px; height: 30px;
+    border: 0; border-radius: 50%; background: #ffffff1a; color: #fff;
+    font-size: 15px; line-height: 1; cursor: pointer; font-family: inherit;
+  }
+  .card .badge {
+    display: inline-block; padding: 4px 10px; border-radius: 999px;
+    background: #00000038; color: var(--fg, #fff);
+    font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  }
+  .card .grade {
+    margin: 14px 0 2px; font-size: 40px; font-weight: 900; line-height: 1;
+    color: var(--fg, #fff); text-shadow: 0 2px 18px #0008; letter-spacing: .01em;
+  }
+  .card .nick { font-size: 14px; color: #ffffffcc; margin-bottom: 16px; }
+  .card .big {
+    display: flex; align-items: baseline; gap: 8px; padding: 14px 0 16px;
+    border-top: 1px solid #ffffff22; border-bottom: 1px solid #ffffff22;
+  }
+  .card .big b { font-size: 34px; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; line-height: 1; }
+  .card .big span { font-size: 13px; color: #ffffffb0; }
+  .card .grid { margin-top: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 10px; }
+  .card .grid div { min-width: 0; }
+  .card .grid i { display: block; font-style: normal; font-size: 11px; color: #ffffff8c; margin-bottom: 3px; }
+  .card .grid em { display: block; font-style: normal; font-size: 15px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .note { margin-top: 16px; font-size: 11px; color: #ffffff73; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <a href="index.html">←</a>
+  <h1>排行榜</h1>
+</div>
+
+<div class="tabs">
+  <button id="tabSteps" class="on">步数榜</button>
+  <button id="tabValue">皮肤榜</button>
+</div>
+
+<div class="board" id="board">
+  <div class="msg">读取中…</div>
+</div>
+
+<div class="foot">每人可以传多局，一起排 · 只显示前二十名<br>皮肤榜只排极品 · 点行看详细</div>
+
+<div class="mask" id="mask">
+  <div class="card" id="card"></div>
+</div>
+
+<script src="data.js?v=31"></script>
+<script>
+(function () {
+  'use strict';
+
+  var API = 'api/leaderboard';
+  var board = document.getElementById('board');
+  var tabSteps = document.getElementById('tabSteps');
+  var tabValue = document.getElementById('tabValue');
+  var mask = document.getElementById('mask');
+  var card = document.getElementById('card');
+  var kind = 'steps';
+  var loading = false;
+  var cache = { steps: [], value: [] };
+
+  function fmt(n) { return (n || 0).toLocaleString('en-US'); }
+
+  function skinLabel(e) {
+    if (e.grade) return e.grade;
+    return e.tier || '没有主皮肤';
+  }
+
+  // 从公共数据层里找这件皮肤的配色，找不到就给个中性灰
+  function skinOf(e) {
+    var T = (window.DF && DF.TABLE) || [];
+    for (var i = 0; i < T.length; i++) {
+      if (T[i].tier === e.tier && T[i].grade === (e.grade || '')) return T[i];
+    }
+    return null;
+  }
+
+  function stamp(ts) {
+    if (!ts) return '—';
+    var d = new Date(ts * 1000);
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return (d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  function row(e) {
+    var d = document.createElement('div');
+    d.className = 'row' + (e.rank <= 3 ? ' top' + e.rank : '') + (kind === 'steps' ? ' static' : '');
+
+    var rk = document.createElement('div');
+    rk.className = 'rk';
+    rk.textContent = e.rank;
+    d.appendChild(rk);
+
+    var who = document.createElement('div');
+    who.className = 'who';
+    var nick = document.createElement('div');
+    nick.className = 'nick';
+    nick.textContent = e.nickname;
+    who.appendChild(nick);
+
+    var sub = document.createElement('div');
+    sub.className = 'sub';
+    if (kind === 'steps') {
+      sub.textContent = '最好一件 ' + skinLabel(e);
+    } else {
+      sub.textContent = (e.wear !== null && e.wear !== undefined)
+        ? '磨损 ' + Number(e.wear).toFixed(2)
+        : (e.tier || '—');
+    }
+    who.appendChild(sub);
+    d.appendChild(who);
+
+    var main = document.createElement('div');
+    main.className = 'main';
+    if (kind === 'steps') {
+      main.innerHTML = fmt(e.steps) + '<small>步</small>';
+    } else {
+      main.innerHTML = fmt(e.val) + '<small>金</small>';
+    }
+    d.appendChild(main);
+
+    if (kind === 'value') d.addEventListener('click', function () { open(e); });
+    return d;
+  }
+
+  function open(e) {
+    var sk = skinOf(e);
+    card.style.setProperty('--c1', (sk && sk.c1) || '#2b3240');
+    card.style.setProperty('--c2', (sk && sk.c2) || '#12161d');
+    card.style.setProperty('--fg', (sk && sk.fg) || '#ffffff');
+
+    var wearTxt = (e.wear !== null && e.wear !== undefined)
+      ? Number(e.wear).toFixed(2)
+      : '—';
+    var condTxt = e.cond ? (e.cond + ' 级') : '—';
+    var bigLabel = (e.wear !== null && e.wear !== undefined) ? '磨损' : '这件没有成色';
+
+    card.innerHTML =
+      '<button class="close" id="closeBtn">✕</button>' +
+      '<div class="badge">' + (e.tier || '空手') + '</div>' +
+      '<div class="grade">' + skinLabel(e) + '</div>' +
+      '<div class="nick">' + e.nickname + ' 的这一局</div>' +
+      '<div class="big"><b>' + wearTxt + '</b><span>' + bigLabel + '</span></div>' +
+      '<div class="grid">' +
+        '<div><i>卖价</i><em>' + fmt(e.val) + ' 金</em></div>' +
+        '<div><i>成色</i><em>' + condTxt + '</em></div>' +
+        '<div><i>本局步数</i><em>' + fmt(e.steps) + ' 步</em></div>' +
+        '<div><i>榜上名次</i><em>第 ' + e.rank + ' 名</em></div>' +
+      '</div>' +
+      '<div class="note">上传于 ' + stamp(e.ts) + '</div>';
+
+    mask.classList.add('on');
+    document.getElementById('closeBtn').addEventListener('click', close);
+  }
+
+  function close() { mask.classList.remove('on'); }
+
+  mask.addEventListener('click', function (ev) { if (ev.target === mask) close(); });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') close(); });
+
+  function load() {
+    if (loading) return;
+    loading = true;
+    board.innerHTML = '<div class="msg">读取中…</div>';
+    fetch(API + '?type=' + kind + '&limit=20', { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        board.innerHTML = '';
+        if (!j || !j.ok) throw new Error((j && j.error) || '读取失败');
+        cache[kind] = j.entries;
+        if (!j.entries.length) {
+          board.innerHTML = '<div class="msg">还没有人上榜，去赌博模式死一把</div>';
+          return;
+        }
+        j.entries.forEach(function (e) { board.appendChild(row(e)); });
+      })
+      .catch(function (err) {
+        board.innerHTML = '<div class="msg">' + (err.message || '读取失败') + '</div>';
+      })
+      .finally(function () { loading = false; });
+  }
+
+  function pick(k) {
+    kind = k;
+    tabSteps.classList.toggle('on', k === 'steps');
+    tabValue.classList.toggle('on', k === 'value');
+    load();
+  }
+
+  tabSteps.addEventListener('click', function () { pick('steps'); });
+  tabValue.addEventListener('click', function () { pick('value'); });
+
+  load();
+})();
+</script>
+</body>
+</html>

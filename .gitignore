@@ -1,0 +1,23 @@
+# 调试产物
+_*.png
+_*.py
+_chk.py
+preview.html
+
+# 数据库
+*.db
+*.db-wal
+*.db-shm
+
+# 旧版原型，不跟仓库走
+_t/
+js/
+_edgeprof/
+_edgeprof2/
+
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/

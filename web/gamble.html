@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0e1116">
+<title>赌博模式</title>
+<link rel="stylesheet" href="gamble.css?v=29">
+</head>
+<body>
+
+<header class="bar">
+  <a class="back" href="./">返回</a>
+  <span class="mode">赌博模式</span>
+  <button id="again" class="link">重开</button>
+</header>
+
+<section class="hud">
+  <div class="cell">
+    <span class="k">三角�?/span>
+    <span class="v"><img class="coin" src="coin.svg?v=1" alt=""><b id="coins">20,000</b></span>
+  </div>
+  <div class="cell">
+    <span class="k">免费�?/span>
+    <span class="v dim" id="freePulls">0</span>
+  </div>
+  <div class="cell">
+    <span class="k">抽数</span>
+    <span class="v" id="steps">0</span>
+  </div>
+</section>
+
+<section class="pity">
+  <span class="pk">保底</span>
+  <span class="pbar"><i id="pityFill"></i><b class="mark" id="pityMark"></b></span>
+  <span class="pv" id="pityText">0 / 75</span>
+  <span class="decay" id="decay"></span>
+</section>
+
+<main class="view" id="view"></main>
+
+<section class="actions" id="actions">
+  <div class="row sub">
+    <button id="openWare" class="btn sm">金库 <b id="wareBtn">0</b></button>
+    <button id="openTrash" class="btn sm">垃圾�?<b id="trashBtn">0</b></button>
+    <button id="openTalent" class="btn sm">天赋 <b id="talentBtn">0</b></button>
+  </div>
+  <div class="row main">
+    <button id="pull1" class="btn sm2"><span>�?1</span><small><img class="coin" src="coin.svg?v=1" alt=""><b id="cost1">100</b></small></button>
+    <button id="pull10" class="btn primary"><span>�?10</span><small><img class="coin" src="coin.svg?v=1" alt=""><b id="cost10">1,000</b></small></button>
+    <button id="pull25" class="btn primary" hidden><span>�?25</span><small><img class="coin" src="coin.svg?v=1" alt=""><b id="cost25">2,500</b></small></button>
+  </div>
+</section>
+
+<script src="data.js?v=31"></script>
+<script src="economy.js?v=34"></script>
+<script src="gamble.js?v=35"></script>
+</body>
+</html>

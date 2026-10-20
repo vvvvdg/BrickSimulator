@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0e1116">
+<title>模拟抽奖</title>
+<link rel="stylesheet" href="style.css?v=27">
+</head>
+<body>
+
+<header class="bar"><a class="back" href="./">返回</a></header>
+
+<section class="pity">
+  <div class="prow" id="rowLast">
+    <span class="pk">上次</span>
+    <span class="pbar dim"><i id="pityLastFill"></i></span>
+    <span class="pv" id="pityLastText">—</span>
+  </div>
+  <div class="prow">
+    <span class="pk">本轮</span>
+    <span class="pbar"><i id="pityFill"></i><b class="mark"></b></span>
+    <span class="pv" id="pityText">0 / 75</span>
+  </div>
+</section>
+
+<section class="stage">
+  <div id="stage" class="stage-inner">
+    <p class="hint">按「开砖」开始</p>
+  </div>
+</section>
+
+<section class="actions">
+  <button id="draw1" class="btn">开 1 砖</button>
+  <button id="draw10" class="btn">开 10 砖</button>
+  <button id="draw25" class="btn primary">开 25 砖</button>
+</section>
+
+<section class="stats">
+  <div class="stat-head">
+    <span id="totalLine">共 0 砖</span>
+    <button id="reset" class="link">重置</button>
+  </div>
+  <ul id="statList"></ul>
+</section>
+
+<script src="data.js?v=2"></script>
+<script src="app.js?v=27"></script>
+</body>
+</html>
